@@ -24,7 +24,8 @@ jobs:
           git fetch --unshallow
           git log -n5 | grep commit | sed -n '2p' | awk '{print $2}' | xargs git checkout
       - run: echo $(cksum index.html | awk '{print $1}')
-      - run: echo "previous_index_cksum=$(cksum index.html | awk '{print $1}')"
+      - run: echo "previous_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
+      - run: echo $GITHUB_OUTPUT
       - run: echo ${{ steps.fetch_local_cksum.outputs.local_index_cksum }}
       - run: echo ${{ steps.fetch_previous_cksum.outputs.previous_index_cksum }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
