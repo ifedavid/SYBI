@@ -22,7 +22,7 @@ jobs:
         id: fetch_previous_cksum
         run: |
           git fetch --unshallow
-          git log -n5 | grep -e 'commit [0-9a-z]*$' | sed -n '2p' | awk '{print $2}' | xargs git checkout
+          git log -n5 | grep commit -e 'commit [0-9a-z]*$' | sed -n '2p' | awk '{print $2}' | xargs git checkout
           echo "previous_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
       - run: echo ${{ steps.fetch_local_cksum.outputs.local_index_cksum }}
       - run: echo ${{ steps.fetch_previous_cksum.outputs.previous_index_cksum }}
@@ -33,15 +33,13 @@ jobs:
     if: ${{ needs.check-for-updates.outputs.local_index_cksum == needs.check-for-updates.outputs.previous_index_cksum }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository code
+      - name: Check out to branch that triggered the workflow
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: Push changes to gh-pages branch
+        run: |
+          git push origin HEAD:gh-pages
         env:
           GH_TOKEN: ${{ secrets.APP_TOKEN }}
-        run: |
-          git fetch --unshallow
-          git config --global user.name "Your Name"
-          git config --global user.email "your-email@example.com"
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          git push origin HEAD:gh-pages
       - run: echo "🍏 This job's status is ${{ job.status }}."
