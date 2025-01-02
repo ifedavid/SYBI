@@ -17,13 +17,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Fetch cksum number for index.html on local branch
         id: fetch_local_cksum
-        run: echo "$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
-      - run: echo $local_index_cksum
+        run: echo "local_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
       - name: Checkout to main and fetch cksum number for index.html on remote branch
         id: fetch_remote_cksum
         run: git checkout origin/main
-      - run: echo "$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
-      - run: echo $remote_index_cksum
+      - run: echo "remote_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
+      - run: echo ${{ steps.fetch_local_cksum.outputs.local_index_cksum }}
+      - run: echo ${{ steps.fetch_remote_cksum.outputs.remote_index_cksum }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
   
   deploy:
