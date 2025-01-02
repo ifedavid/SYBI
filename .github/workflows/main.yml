@@ -38,8 +38,9 @@ jobs:
         with:
           ref: ${{ github.ref }}
       - name: Push changes to gh-pages branch
-        run: |
-          git push origin HEAD:gh-pages
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          APP_TOKEN: ${{ secrets.APP_TOKEN }}
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.APP_TOKEN }}@github.com/${{ github.repository }}
+          git push origin HEAD:gh-pages
       - run: echo "🍏 This job's status is ${{ job.status }}."
