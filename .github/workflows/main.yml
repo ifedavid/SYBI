@@ -39,6 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.APP_TOKEN }}
         run: |
+          set -x
           git fetch --unshallow
           git config --global user.name "Your Name"
           git config --global user.email "your-email@example.com"
