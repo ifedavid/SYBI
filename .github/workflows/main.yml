@@ -22,7 +22,7 @@ jobs:
         id: fetch_previous_cksum
         run: |
           git fetch --unshallow
-          git log -n5 | grep commit -e 'commit [0-9a-z]*' | sed -n '2p' | awk '{print $2}' | xargs git checkout
+          git log -n5 | grep -e 'commit [0-9a-z]*' | sed -n '2p' | awk '{print $2}' | xargs git checkout
           echo "previous_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
       - run: echo "🍏 This job's status is ${{ job.status }}."
   
