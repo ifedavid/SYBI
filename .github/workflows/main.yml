@@ -7,6 +7,9 @@ on:
 jobs:
   check-for-updates:
     runs-on: ubuntu-latest
+    outputs:
+      local_index_cksum: ${{ steps.fetch_local_cksum.outputs.local_index_cksum }}
+      remote_index_cksum: ${{ steps.fetch_remote_cksum.outputs.remote_index_cksum }}
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
@@ -24,7 +27,8 @@ jobs:
       - run: echo "🍏 This job's status is ${{ job.status }}."
   
   deploy:
-    if: ${{ steps.fetch_local_cksum.outputs.local_index_cksum }} != ${{ steps.fetch_remote_cksum.outputs.remote_index_cksum }}
+    needs: [check-for-updates]
+    if: ${{ needs.check-for-updates.outputs.local_index_cksum }}  != ${{ needs.check-for-updates.outputs.remote_index_cksum }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out to branch that triggered the workflow
