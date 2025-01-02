@@ -20,9 +20,7 @@ jobs:
         run: echo "local_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
       - name: Checkout to previous commit and fetch cksum number for index.html
         id: fetch_previous_cksum
-        run: previous_commit=$(git log | grep commit | sed -n '3p' | awk '{print $2}')
-      - run: echo $previous_commit
-      - run: git checkout $previous_commit
+        run: git log | grep commit | sed -n '3p' | awk '{print $2}'
       - run: echo "previous_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
       - run: echo ${{ steps.fetch_local_cksum.outputs.local_index_cksum }}
       - run: echo ${{ steps.fetch_previous_cksum.outputs.previous_index_cksum }}
@@ -30,7 +28,7 @@ jobs:
   
   deploy:
     needs: [check-for-updates]
-    if: ${{ needs.check-for-updates.outputs.local_index_cksum }} == ${{ needs.check-for-updates.outputs.previous_index_cksum }}
+    if: ${{ needs.check-for-updates.outputs.local_index_cksum }} != ${{ needs.check-for-updates.outputs.previous_index_cksum }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out to branch that triggered the workflow
