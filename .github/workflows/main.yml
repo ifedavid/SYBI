@@ -33,12 +33,10 @@ jobs:
     if: ${{ needs.check-for-updates.outputs.local_index_cksum == needs.check-for-updates.outputs.previous_index_cksum }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out to branch that triggered the workflow
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
       - name: Push changes to gh-pages branch
         run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git push origin HEAD:gh-pages
         env:
           GH_TOKEN: ${{ secrets.APP_TOKEN }}
