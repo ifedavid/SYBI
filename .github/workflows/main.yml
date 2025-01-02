@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       local_index_cksum: ${{ steps.fetch_local_cksum.outputs.local_index_cksum }}
-      remote_index_cksum: ${{ steps.fetch_remote_cksum.outputs.remote_index_cksum }}
+      previous_index_cksum: ${{ steps.fetch_previous_cksum.outputs.previous_index_cksum }}
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
@@ -18,17 +18,17 @@ jobs:
       - name: Fetch cksum number for index.html on local branch
         id: fetch_local_cksum
         run: echo "local_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
-      - name: Checkout to main and fetch cksum number for index.html on remote branch
-        id: fetch_remote_cksum
-        run: git checkout origin/main
-      - run: echo "remote_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
+      - name: Checkout to previous commit and fetch cksum number for index.html
+        id: fetch_previous_cksum
+        run: git log | grep commit | sed -n '2p' | awk '{print $2}' | xargs git checkout
+      - run: echo "previous_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
       - run: echo ${{ steps.fetch_local_cksum.outputs.local_index_cksum }}
-      - run: echo ${{ steps.fetch_remote_cksum.outputs.remote_index_cksum }}
+      - run: echo ${{ steps.fetch_previous_cksum.outputs.previous_index_cksum }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
   
   deploy:
     needs: [check-for-updates]
-    if: ${{ needs.check-for-updates.outputs.local_index_cksum }} == ${{ needs.check-for-updates.outputs.remote_index_cksum }}
+    if: ${{ needs.check-for-updates.outputs.local_index_cksum }} == ${{ needs.check-for-updates.outputs.previous_index_cksum }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out to branch that triggered the workflow
