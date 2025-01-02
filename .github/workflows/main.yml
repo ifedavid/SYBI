@@ -42,6 +42,7 @@ jobs:
           git fetch --unshallow
           git config --global user.name "Your Name"
           git config --global user.email "your-email@example.com"
+          echo ${GH_TOKEN}
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
           git push origin HEAD:gh-pages
       - run: echo "🍏 This job's status is ${{ job.status }}."
