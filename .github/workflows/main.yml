@@ -19,11 +19,13 @@ jobs:
         id: fetch_local_cksum
         run: |
           echo "local_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo $local_index_cksum
       - name: Checkout to main and fetch cksum number for index.html on remote branch
         id: fetch_remote_cksum
         run: |
           git checkout origin/main
           echo "remote_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo $remote_index_cksum
       - run: echo "🍏 This job's status is ${{ job.status }}."
   
   deploy:
