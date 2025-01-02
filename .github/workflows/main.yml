@@ -30,7 +30,7 @@ jobs:
   
   deploy:
     needs: [check-for-updates]
-    if: ${{ needs.check-for-updates.outputs.local_index_cksum }} == ${{ needs.check-for-updates.outputs.previous_index_cksum }}
+    if: ${{ needs.check-for-updates.outputs.local_index_cksum == needs.check-for-updates.outputs.previous_index_cksum }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out to branch that triggered the workflow
