@@ -20,7 +20,8 @@ jobs:
         run: echo "local_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
       - name: Checkout to previous commit and fetch cksum number for index.html
         id: fetch_previous_cksum
-        run: git log | grep commit | sed -n '3p' | awk '{print $2}' | xargs git checkout
+        run: previous_commit=$(git log | grep commit | sed -n '3p' | awk '{print $2}')
+      - run: git checkout $previous_commit
       - run: echo "previous_index_cksum=$(cksum index.html | awk '{print $1}')" >> $GITHUB_OUTPUT
       - run: echo ${{ steps.fetch_local_cksum.outputs.local_index_cksum }}
       - run: echo ${{ steps.fetch_previous_cksum.outputs.previous_index_cksum }}
