@@ -33,8 +33,11 @@ jobs:
     if: ${{ needs.check-for-updates.outputs.local_index_cksum == needs.check-for-updates.outputs.previous_index_cksum }}
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
       - name: Push changes to gh-pages branch
         run: |
+          git fetch --unshallow
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git push origin HEAD:gh-pages
