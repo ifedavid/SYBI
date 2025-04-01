@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { useState } from "react";
+import Select from 'react-select';
 import Post from "../components/Post";
 
 export function meta({}: Route.MetaArgs) {
@@ -10,11 +11,18 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const [brand, setBrand] = useState("");
+  const [brand, setBrand] = useState<string>("");
   const [dateOrder, setDateOrder] = useState("asc");
   const [reviewOrder, setReviewOrder] = useState("best");
 
   const brands = ["PJ Wears", "Brand B", "Brand C"];
+  
+  // Convert brands array to react-select format
+  const brandOptions = brands.map(brand => ({
+    value: brand,
+    label: brand
+  }));
+
   const posts = [
     {
       title: "Amazing Experience",
@@ -48,6 +56,10 @@ export default function Home() {
     },
   ];
 
+  const handleBrandSelect = (selectedOption: any) => {
+    setBrand(selectedOption ? selectedOption.value : "");
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <div className="text-center mb-8">
@@ -56,18 +68,18 @@ export default function Home() {
       </div>
 
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-        <select
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-          className="bg-white border border-gray-200 p-2 rounded-lg shadow-sm hover:border-lime-500/50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime-500/50 w-full sm:w-auto"
-        >
-          <option value="">Select Brand</option>
-          {brands.map((brand) => (
-            <option key={brand} value={brand}>
-              {brand}
-            </option>
-          ))}
-        </select>
+        <div className="w-full sm:w-auto">
+          <Select
+            value={brandOptions.find(option => option.value === brand)}
+            onChange={handleBrandSelect}
+            options={brandOptions}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            placeholder="Search brands..."
+            isClearable
+            isSearchable
+          />
+        </div>
         <select
           value={dateOrder}
           onChange={(e) => setDateOrder(e.target.value)}

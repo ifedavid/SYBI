@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Select from 'react-select';
 import type { Route } from "./+types/submit-review";
 
 export function meta({}: Route.MetaArgs) {
@@ -21,6 +22,7 @@ export default function SubmitReview() {
     recommendation: "yes",
     reviewerName: "",
     email: "",
+    isAnonymous: false,
   });
 
   // Mock data for existing businesses - replace with actual data from your backend
@@ -29,6 +31,30 @@ export default function SubmitReview() {
     { id: 2, name: "Brand B" },
     { id: 3, name: "Brand C" },
   ];
+
+  // Add this array of preset review titles
+  const reviewTitleOptions = [
+    "Great Experience Overall",
+    "Disappointing Service",
+    "Excellent Value for Money",
+    "Room for Improvement",
+    "Highly Recommended",
+    "Mixed Feelings"
+  ];
+
+  // Convert existing businesses to react-select format
+  const businessOptions = existingBusinesses.map(business => ({
+    value: business.name,
+    label: business.name
+  }));
+
+  // Add this handler for react-select
+  const handleBusinessSelect = (selectedOption: any) => {
+    setFormData(prev => ({
+      ...prev,
+      businessName: selectedOption ? selectedOption.value : ""
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,21 +109,18 @@ export default function SubmitReview() {
               <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
                 Select Business *
               </label>
-              <select
+              <Select
                 id="businessName"
                 name="businessName"
-                required
-                value={formData.businessName}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
-              >
-                <option value="">Select a business</option>
-                {existingBusinesses.map((business) => (
-                  <option key={business.id} value={business.name}>
-                    {business.name}
-                  </option>
-                ))}
-              </select>
+                value={businessOptions.find(option => option.value === formData.businessName)}
+                onChange={handleBusinessSelect}
+                options={businessOptions}
+                className="react-select-container"
+                classNamePrefix="react-select"
+                placeholder="Search for a business..."
+                isClearable
+                isSearchable
+              />
             </div>
           ) : (
             <>
@@ -204,16 +227,21 @@ export default function SubmitReview() {
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
               Review Title *
             </label>
-            <input
-              type="text"
+            <select
               id="title"
               name="title"
               required
               value={formData.title}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
-              placeholder="Summarize your experience"
-            />
+            >
+              <option value="">Select a title</option>
+              {reviewTitleOptions.map((title) => (
+                <option key={title} value={title}>
+                  {title}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -267,37 +295,52 @@ export default function SubmitReview() {
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-800">Your Information</h2>
           
-          <div>
-            <label htmlFor="reviewerName" className="block text-sm font-medium text-gray-700 mb-1">
-              Your Name *
+          <div className="mb-4">
+            <label className="inline-flex items-center">
+              <input
+                type="checkbox"
+                name="isAnonymous"
+                checked={formData.isAnonymous}
+                onChange={(e) => setFormData(prev => ({ ...prev, isAnonymous: e.target.checked }))}
+                className="text-lime-500 focus:ring-lime-500"
+              />
+              <span className="ml-2">Submit anonymously</span>
             </label>
-            <input
-              type="text"
-              id="reviewerName"
-              name="reviewerName"
-              required
-              value={formData.reviewerName}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
-              placeholder="Enter your name"
-            />
           </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
-              placeholder="Enter your email"
-            />
-          </div>
+          {!formData.isAnonymous && (
+            <>
+              <div>
+                <label htmlFor="reviewerName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Your Name
+                </label>
+                <input
+                  type="text"
+                  id="reviewerName"
+                  name="reviewerName"
+                  value={formData.reviewerName}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
+                  placeholder="Enter your email"
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <button
