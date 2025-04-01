@@ -63,7 +63,7 @@ export default function Home() {
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8 mt-8">
-        <div className="w-full sm:w-auto">
+        <div className="w-full sm:w-[400px] lg:w-[500px]">
           <Select
             value={brandOptions.find(option => option.value === brand)}
             onChange={handleBrandSelect}
