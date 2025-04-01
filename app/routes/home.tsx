@@ -62,13 +62,8 @@ export default function Home() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      <div className="text-center mb-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">Latest Reviews</h3>
-        <p className="text-gray-600">Find trusted reviews from real customers</p>
-      </div>
-
-      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-        <div className="w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8 mt-8">
+        <div className="w-full sm:w-[400px] lg:w-[500px]">
           <Select
             value={brandOptions.find(option => option.value === brand)}
             onChange={handleBrandSelect}
@@ -80,22 +75,11 @@ export default function Home() {
             isSearchable
           />
         </div>
-        <select
-          value={dateOrder}
-          onChange={(e) => setDateOrder(e.target.value)}
-          className="bg-white border border-gray-200 p-2 rounded-lg shadow-sm hover:border-lime-500/50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime-500/50 w-full sm:w-auto"
-        >
-          <option value="asc">Date Added (Ascending)</option>
-          <option value="desc">Date Added (Descending)</option>
-        </select>
-        <select
-          value={reviewOrder}
-          onChange={(e) => setReviewOrder(e.target.value)}
-          className="bg-white border border-gray-200 p-2 rounded-lg shadow-sm hover:border-lime-500/50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime-500/50 w-full sm:w-auto"
-        >
-          <option value="best">Reviews (Ascending)</option>
-          <option value="worst">Reviews (Descending)</option>
-        </select>
+      </div>
+      
+      <div className="text-center mb-8 mt-12">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Latest Reviews</h1>
+        <p className="text-gray-600">Discover what others are saying about businesses</p>
       </div>
 
       <div className="space-y-6 max-w-2xl mx-auto">
