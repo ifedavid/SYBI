@@ -1,36 +1,69 @@
-import { useState } from "react";
-import Select from 'react-select';
+import { useEffect, useState } from "react";
+import Select from "react-select";
+import type { Brand, Review, User } from "app/supabase/models";
 import type { Route } from "./+types/submit-review";
+import {
+  createReview,
+  createUser,
+  getBrands,
+  uploadImages,
+} from "app/supabase/sybi_crud";
+import type {
+  CreateBrand,
+  CreateReview,
+  CreateUser,
+} from "app/supabase/sybi_crud";
+
+class BusinessType {
+  static NEW = "new";
+  static EXISTING = "existing";
+}
+
+class Recommendation {
+  static NO = "no";
+  static YES = "yes";
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Submit a Review - SYBI" },
-    { name: "description", content: "Share your experience and help others make informed decisions" },
+    {
+      name: "description",
+      content: "Share your experience and help others make informed decisions",
+    },
   ];
 }
 
 export default function SubmitReview() {
   const [formData, setFormData] = useState({
-    businessType: "existing", // "existing" or "new"
-    businessName: "",
+    businessType: BusinessType.EXISTING, // "existing" or "new"
+    brandName: "",
     category: "",
     instagramHandle: "",
     websiteUrl: "",
     rating: 5,
     title: "",
     review: "",
-    recommendation: "yes",
+    recommendation: Recommendation.YES,
     reviewerName: "",
     email: "",
     isAnonymous: false,
+    images: [] as File[],
   });
 
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [currentBrand, setCurrentBrand] = useState<Brand>();
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
   // Mock data for existing businesses - replace with actual data from your backend
-  const existingBusinesses = [
-    { id: 1, name: "PJ Wears" },
-    { id: 2, name: "Brand B" },
-    { id: 3, name: "Brand C" },
-  ];
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
+  const fetchBrands = async () => {
+    const brands_data = await getBrands();
+    setBrands(brands_data);
+  };
 
   // Add this array of preset review titles
   const reviewTitleOptions = [
@@ -39,53 +72,138 @@ export default function SubmitReview() {
     "Excellent Value for Money",
     "Room for Improvement",
     "Highly Recommended",
-    "Mixed Feelings"
+    "Mixed Feelings",
   ];
 
   // Convert existing businesses to react-select format
-  const businessOptions = existingBusinesses.map(business => ({
-    value: business.name,
-    label: business.name
+  const businessOptions = brands.map((brand) => ({
+    value: brand.name,
+    label: brand.name,
   }));
 
   // Add this handler for react-select
-  const handleBusinessSelect = (selectedOption: any) => {
-    setFormData(prev => ({
+  const handleBrandsSelect = (selectedOption: any) => {
+    setCurrentBrand(
+      brands.find((brand) => brand.name === selectedOption?.value),
+    );
+    setFormData((prev) => ({
       ...prev,
-      businessName: selectedOption ? selectedOption.value : ""
+      brandName: selectedOption ? selectedOption.value : "",
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Handle form submission
     console.log(formData);
+
+    let imageUrls: string[] = [];
+    if (formData.images.length > 0) {
+      try {
+        imageUrls = await uploadImages(formData.images);
+      } catch (error) {
+        console.error("Error uploading images:", error);
+        // Handle error appropriately
+      }
+    }
+
+    let brand: CreateBrand = {
+      category: currentBrand?.category || "",
+      name: currentBrand?.name || " ",
+      url: currentBrand?.url || "",
+      insta_url: currentBrand?.insta_url || "",
+    };
+
+    const ANONYMOUS = "Anonymous";
+    let user: CreateUser = {
+      name: ANONYMOUS,
+      email: ANONYMOUS,
+    };
+
+    if (!formData.isAnonymous) {
+      user = {
+        name: formData.reviewerName,
+        email: formData.email,
+      };
+      createUser(user);
+    }
+
+    if (formData.businessType == BusinessType.NEW) {
+      brand = {
+        category: formData.category,
+        name: formData.brandName,
+        url: formData.websiteUrl,
+        insta_url: formData.instagramHandle,
+      };
+    }
+
+    const review: CreateReview = {
+      title: formData.title,
+      description: formData.review,
+      rating: formData.rating,
+      recommended: formData.recommendation === Recommendation.YES,
+      brand_name: brand.name,
+      brand_url: brand.url,
+      user_name: user.name,
+      user_email: user.email,
+      images: imageUrls,
+    };
+    createReview(review);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setFormData((prev) => ({ ...prev, images: files }));
+
+    // Create previews
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
+  const removeImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Submit a Review</h1>
-        <p className="text-gray-600">Share your experience to help others make informed decisions</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Submit a Review
+        </h1>
+        <p className="text-gray-600">
+          Share your experience to help others make informed decisions
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-xl shadow-lg p-6 space-y-6"
+      >
         {/* Business Type Selection */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-800">Business Information</h2>
-          
+          <h2 className="text-lg font-semibold text-gray-800">
+            Business Information
+          </h2>
+
           <div className="flex gap-4 p-4 bg-gray-50 rounded-lg">
             <label className="inline-flex items-center">
               <input
                 type="radio"
                 name="businessType"
-                value="existing"
-                checked={formData.businessType === "existing"}
+                value={BusinessType.EXISTING}
+                checked={formData.businessType === BusinessType.EXISTING}
                 onChange={handleChange}
                 className="text-lime-500 focus:ring-lime-500"
               />
@@ -95,8 +213,8 @@ export default function SubmitReview() {
               <input
                 type="radio"
                 name="businessType"
-                value="new"
-                checked={formData.businessType === "new"}
+                value={BusinessType.NEW}
+                checked={formData.businessType === BusinessType.NEW}
                 onChange={handleChange}
                 className="text-lime-500 focus:ring-lime-500"
               />
@@ -104,16 +222,21 @@ export default function SubmitReview() {
             </label>
           </div>
 
-          {formData.businessType === "existing" ? (
+          {formData.businessType === BusinessType.EXISTING ? (
             <div>
-              <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="businessName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Select Business *
               </label>
               <Select
                 id="businessName"
                 name="businessName"
-                value={businessOptions.find(option => option.value === formData.businessName)}
-                onChange={handleBusinessSelect}
+                value={businessOptions.find(
+                  (option) => option.value === formData.brandName,
+                )}
+                onChange={handleBrandsSelect}
                 options={businessOptions}
                 className="react-select-container"
                 classNamePrefix="react-select"
@@ -125,7 +248,10 @@ export default function SubmitReview() {
           ) : (
             <>
               <div>
-                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="businessName"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Business Name *
                 </label>
                 <input
@@ -133,7 +259,7 @@ export default function SubmitReview() {
                   id="businessName"
                   name="businessName"
                   required
-                  value={formData.businessName}
+                  value={formData.brandName}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
                   placeholder="Enter business name"
@@ -141,7 +267,10 @@ export default function SubmitReview() {
               </div>
 
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Business Category *
                 </label>
                 <select
@@ -162,7 +291,10 @@ export default function SubmitReview() {
               </div>
 
               <div>
-                <label htmlFor="instagramHandle" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="instagramHandle"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Instagram Handle
                 </label>
                 <div className="flex">
@@ -182,7 +314,10 @@ export default function SubmitReview() {
               </div>
 
               <div>
-                <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="websiteUrl"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Website URL
                 </label>
                 <input
@@ -202,9 +337,11 @@ export default function SubmitReview() {
         {/* Review Details */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-800">Your Review</h2>
-          
           <div>
-            <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="rating"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Rating *
             </label>
             <div className="flex gap-4">
@@ -212,9 +349,13 @@ export default function SubmitReview() {
                 <button
                   key={star}
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, rating: star }))
+                  }
                   className={`text-2xl ${
-                    star <= formData.rating ? 'text-yellow-400' : 'text-gray-300'
+                    star <= formData.rating
+                      ? "text-yellow-400"
+                      : "text-gray-300"
                   }`}
                 >
                   ★
@@ -224,7 +365,10 @@ export default function SubmitReview() {
           </div>
 
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Review Title *
             </label>
             <select
@@ -245,7 +389,10 @@ export default function SubmitReview() {
           </div>
 
           <div>
-            <label htmlFor="review" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="review"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Your Review *
             </label>
             <textarea
@@ -269,8 +416,8 @@ export default function SubmitReview() {
                 <input
                   type="radio"
                   name="recommendation"
-                  value="yes"
-                  checked={formData.recommendation === "yes"}
+                  value={Recommendation.YES}
+                  checked={formData.recommendation === Recommendation.YES}
                   onChange={handleChange}
                   className="text-lime-500 focus:ring-lime-500"
                 />
@@ -280,8 +427,8 @@ export default function SubmitReview() {
                 <input
                   type="radio"
                   name="recommendation"
-                  value="no"
-                  checked={formData.recommendation === "no"}
+                  value={Recommendation.NO}
+                  checked={formData.recommendation === Recommendation.NO}
                   onChange={handleChange}
                   className="text-red-500 focus:ring-red-500"
                 />
@@ -291,17 +438,102 @@ export default function SubmitReview() {
           </div>
         </div>
 
+        {/* Image Upload Section */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Upload Images (Images or it didn't happen)
+          </label>
+          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+            <div className="space-y-1 text-center">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <div className="flex text-sm text-gray-600">
+                <label
+                  htmlFor="file-upload"
+                  className="relative cursor-pointer bg-white rounded-md font-medium text-lime-600 hover:text-lime-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-lime-500"
+                >
+                  <span>Upload files</span>
+                  <input
+                    id="file-upload"
+                    name="file-upload"
+                    type="file"
+                    className="sr-only"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </label>
+                <p className="pl-1">or drag and drop</p>
+              </div>
+              <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Image Previews */}
+        {imagePreviews.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {imagePreviews.map((preview, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-32 object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Reviewer Information */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-800">Your Information</h2>
-          
+          <h2 className="text-lg font-semibold text-gray-800">
+            Your Information
+          </h2>
+
           <div className="mb-4">
             <label className="inline-flex items-center">
               <input
                 type="checkbox"
                 name="isAnonymous"
                 checked={formData.isAnonymous}
-                onChange={(e) => setFormData(prev => ({ ...prev, isAnonymous: e.target.checked }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isAnonymous: e.target.checked,
+                  }))
+                }
                 className="text-lime-500 focus:ring-lime-500"
               />
               <span className="ml-2">Submit anonymously</span>
@@ -311,7 +543,10 @@ export default function SubmitReview() {
           {!formData.isAnonymous && (
             <>
               <div>
-                <label htmlFor="reviewerName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="reviewerName"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Your Name
                 </label>
                 <input
@@ -326,7 +561,10 @@ export default function SubmitReview() {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email Address
                 </label>
                 <input
@@ -347,8 +585,17 @@ export default function SubmitReview() {
           type="submit"
           className="w-full bg-lime-500 text-white py-2 px-4 rounded-lg hover:bg-lime-600 transition-colors font-medium shadow-sm hover:shadow flex items-center justify-center gap-2"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clipRule="evenodd"
+            />
           </svg>
           Submit Review
         </button>

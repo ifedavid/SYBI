@@ -1,7 +1,9 @@
 import type { Route } from "./+types/home";
-import { useState } from "react";
-import Select from 'react-select';
+import { use, useEffect, useState } from "react";
+import Select from "react-select";
 import Post from "../components/Post";
+import { getBrands, getReviews } from "../supabase/sybi_crud";
+import type { Brand, Review } from "app/supabase/models";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,53 +13,41 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const [brand, setBrand] = useState<string>("");
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [currentBrand, setCurrentBrand] = useState<Brand>();
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [dateOrder, setDateOrder] = useState("asc");
   const [reviewOrder, setReviewOrder] = useState("best");
 
-  const brands = ["PJ Wears", "Brand B", "Brand C"];
-  
-  // Convert brands array to react-select format
-  const brandOptions = brands.map(brand => ({
-    value: brand,
-    label: brand
-  }));
+  useEffect(() => {
+    fetchReviews(currentBrand);
+  }, [currentBrand]);
 
-  const posts = [
-    {
-      title: "Amazing Experience",
-      author: "Treasure W.",
-      content: "My dresses from PJ Wears are exactly as advertised, I also got a free gift with my order. I'll definitely be purchasing again.",
-      dateAdded: "2023-12-01",
-      reviews: 4,
-      reviewComment: "Beautiful pieces",
-      recommended: true,
-      brand: "PJ Wears",
-    },
-    {
-      title: "Good Purchase",
-      author: "John D.",
-      content: "Quality product, fast delivery. Very satisfied with my purchase.",
-      dateAdded: "2023-12-02",
-      reviews: 5,
-      reviewComment: "Excellent service",
-      recommended: true,
-      brand: "Brand B",
-    },
-    {
-      title: "Bad Buy",
-      author: "Ifeoluwa Onigbinde",
-      content: "I really didn't like what I got, she did this and that and I really didn't like it, and then i did this and that and I really didn't like it.",
-      dateAdded: "2023-12-02",
-      reviews: 2,
-      reviewComment: "terrible service",
-      recommended: false,
-      brand: "Brand C",
-    },
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
+  const fetchBrands = async () => {
+    const brands_data = await getBrands();
+    setBrands(brands_data);
+  };
+
+  const fetchReviews = async (currentBrand: Brand | undefined) => {
+    const review_data = await getReviews(currentBrand);
+    setReviews(review_data);
+  };
+
+  // Convert brands array to react-select format
+  const brandOptions = [
+    { value: "All", label: "All" },
+    ...brands.map((brand) => ({
+      value: brand.name,
+      label: brand.name,
+    })),
   ];
 
   const handleBrandSelect = (selectedOption: any) => {
-    setBrand(selectedOption ? selectedOption.value : "");
+    setCurrentBrand(brands.find((brand) => brand.name == selectedOption.value));
   };
 
   return (
@@ -65,7 +55,9 @@ export default function Home() {
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8 mt-8">
         <div className="w-full sm:w-[400px] lg:w-[500px]">
           <Select
-            value={brandOptions.find(option => option.value === brand)}
+            value={brandOptions.find(
+              (option) => option.value === currentBrand?.name,
+            )}
             onChange={handleBrandSelect}
             options={brandOptions}
             className="react-select-container"
@@ -76,15 +68,19 @@ export default function Home() {
           />
         </div>
       </div>
-      
+
       <div className="text-center mb-8 mt-12">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Latest Reviews</h1>
-        <p className="text-gray-600">Discover what others are saying about businesses</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Latest Reviews
+        </h1>
+        <p className="text-gray-600">
+          Discover what others are saying about businesses
+        </p>
       </div>
 
       <div className="space-y-6 max-w-2xl mx-auto">
-        {posts.map((post) => (
-          <Post key={post.title} {...post} />
+        {reviews.map((review: Review) => (
+          <Post key={review.title} {...review} />
         ))}
       </div>
     </div>
