@@ -12,34 +12,35 @@ export type CreateBrand = Omit<Brand, "id" | "created_at">;
 
 export const createReview = async (review: CreateReview) => {
   const { data, error } = await supabase.from(REVIEW_TABEL).insert(review);
-  console.log(data);
-  if (data) {
-    console.log("Created review data ", review);
-    return data;
+  if (error){
+    console.error("Something went wrong ", error)
+    return error
   }
-  if (error) {
-    console.error("Something went wrong ", error);
-  }
+
+  console.log("Created review successfully with data ", review)
+  return null
 };
 
 export const createBrand = async (brand: CreateBrand) => {
   const { data, error } = await supabase.from(BRAND_TABLE).insert(brand);
-  if (data) {
-    console.log("Created brand data ", brand);
-    return data;
-  } else {
-    console.error("Something went wrong ", error);
+  if (error){
+    console.error("Something went wrong ", error)
+    return error
   }
+
+  console.log("Created brand successfully with data ", brand)
+  return null
 };
 
 export const createUser = async (user: CreateUser) => {
   const { data, error } = await supabase.from(USER_TABLE).insert(user);
-  if (data) {
-    console.log("Created user data ", user);
-    return data;
-  } else {
-    console.error("Something went wrong ", error);
+  if (error){
+    console.error("Something went wrong ", error)
+    return error
   }
+
+  console.log("Created user successfully with data ", user)
+  return null;
 };
 
 export const getReviews = async (

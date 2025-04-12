@@ -16,8 +16,6 @@ export default function Home() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [currentBrand, setCurrentBrand] = useState<Brand>();
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [dateOrder, setDateOrder] = useState("asc");
-  const [reviewOrder, setReviewOrder] = useState("best");
 
   useEffect(() => {
     fetchReviews(currentBrand);
