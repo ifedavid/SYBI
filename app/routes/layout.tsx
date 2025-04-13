@@ -44,7 +44,7 @@ const BackgroundElements = () => {
   }));
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden bg-gray-50">
+    <div className="fixed inset-0 z-0 overflow-hidden bg-gray-50 hidden sm:block">
       {elements.map((element) => (
         <div
           key={element.id}
@@ -142,26 +142,41 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <body className="h-full flex flex-col pt-[120px] sm:pt-20 relative">
         <BackgroundElements />
 
-        <header className="bg-white shadow-lg p-4 flex flex-col sm:flex-row items-center justify-between h-auto sm:h-20 fixed top-0 left-0 right-0 z-10">
-          <div className="flex flex-col sm:flex-row items-center">
-            <Link to="/">
+        <header className="bg-white shadow-lg p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between h-auto sm:h-20 fixed top-0 left-0 right-0 z-10">
+          {/* Logo and Title */}
+          <div className="flex items-center gap-3 mb-3 sm:mb-0">
+            <Link to="/" className="flex items-center gap-2">
               <img
                 src={sybilogo}
                 alt="SYBI Logo"
-                className="h-15 w-15 sm:h-15 sm:w-15 lg:h-15 lg:w-15 transform scale-110 sm:scale-100 mr-0 sm:mr-4 mb-2 sm:mb-0"
+                className="h-10 w-10 sm:h-12 sm:w-12"
               />
+              <h1 className="text-xs sm:text-base lg:text-lg font-medium italic">
+                Discover businesses you can trust...
+              </h1>
             </Link>
-            <h1 className="text-sm sm:text-base lg:text-lg font-medium italic text-center sm:text-left">
-              Discover businesses you can trust...
-            </h1>
           </div>
-          <nav className="flex items-center space-x-4 sm:space-x-6 mt-2 sm:mt-0">
+
+          {/* Navigation */}
+          <nav className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="text-gray-600 hover:text-lime-600 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span>Home</span>
+            </Link>
+
+            <div className="h-5 w-px bg-gray-200"></div>
+
             <Link
               to="/submit-review"
-              className="bg-lime-500 hover:bg-lime-600 text-white px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors shadow-sm hover:shadow flex items-center"
+              className="bg-lime-500 hover:bg-lime-600 text-white px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors shadow-sm hover:shadow flex items-center gap-1.5"
             >
               <svg
-                className="h-4 w-4 mr-1"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -173,7 +188,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                 />
               </svg>
-              Submit a Review
+              <span>Submit A Review</span>
             </Link>
           </nav>
         </header>

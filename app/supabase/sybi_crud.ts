@@ -2,10 +2,12 @@ import supabase from "./supabase_client";
 import type { Review, Brand, User } from "./models";
 import type { PostgrestError } from "@supabase/supabase-js";
 
-const BRAND_TABLE = "brand";
-const REVIEW_TABEL = "review";
-const USER_TABLE = "user";
-const STORAGE_BUCKET = "sybi-images";
+const VITE_DB_TIER = import.meta.env.VITE_DB_TIER;
+const VITE_S3_TIER = import.meta.env.VITE_S3_TIER;
+const BRAND_TABLE = "brand" + VITE_DB_TIER;
+const REVIEW_TABEL = "review" + VITE_DB_TIER;
+const USER_TABLE = "user" + VITE_DB_TIER;
+const STORAGE_BUCKET = "sybi-images" + VITE_S3_TIER;
 
 export type CreateReview = Omit<Review, "id" | "created_at">;
 export type CreateUser = Omit<User, "id" | "created_at">;
@@ -77,7 +79,10 @@ export const uploadImages = async (files: File[]): Promise<string[]> => {
 
     const { data, error } = await supabase.storage
       .from(STORAGE_BUCKET)
-      .upload(filePath, file);
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
 
     if (error) throw error;
 
