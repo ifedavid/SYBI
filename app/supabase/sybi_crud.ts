@@ -13,8 +13,13 @@ export type CreateReview = Omit<Review, "id" | "created_at">;
 export type CreateUser = Omit<User, "id" | "created_at">;
 export type CreateBrand = Omit<Brand, "id" | "created_at">;
 
-export const createReview = async (review: CreateReview): Promise<Review[] | PostgrestError> => {
-  const { data, error } = await supabase.from(REVIEW_TABEL).insert(review).select();
+export const createReview = async (
+  review: CreateReview,
+): Promise<Review[] | PostgrestError> => {
+  const { data, error } = await supabase
+    .from(REVIEW_TABEL)
+    .insert(review)
+    .select();
   if (error) {
     console.error("Something went wrong creating review ", error);
     return error;
@@ -25,7 +30,10 @@ export const createReview = async (review: CreateReview): Promise<Review[] | Pos
 };
 
 export const createBrand = async (brand: CreateBrand) => {
-  const { data, error } = await supabase.from(BRAND_TABLE).upsert(brand).select();
+  const { data, error } = await supabase
+    .from(BRAND_TABLE)
+    .upsert(brand)
+    .select();
   if (error) {
     console.error("Something went wrong creating a brand ", error);
     return error;
@@ -51,7 +59,10 @@ export const getReviews = async (
 ): Promise<Review[]> => {
   console.log("filtering reviews with respect to brand - ", brand);
 
-  let query = supabase.from(REVIEW_TABEL).select("*").order("created_at", {ascending:false});
+  let query = supabase
+    .from(REVIEW_TABEL)
+    .select("*")
+    .order("created_at", { ascending: false });
 
   if (brand) {
     query = query
