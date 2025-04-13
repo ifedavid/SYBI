@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Review } from "../supabase/models";
 
 type PostProps = Review & {
@@ -17,6 +17,19 @@ export default function Post({
 }: PostProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Add effect to handle body scroll
+  useEffect(() => {
+    if (selectedImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedImage]);
 
   return (
     <>
@@ -113,26 +126,42 @@ export default function Post({
         </div>
       </article>
 
-      {/* Image Modal */}
+      {/* Updated Image Modal */}
       {selectedImage && (
-        <div
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        <div 
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 overflow-y-auto overflow-x-hidden"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-5xl w-full mx-auto group">
-            <img
-              src={selectedImage}
-              alt="Enlarged view"
-              className="w-full h-auto max-h-[85vh] object-contain rounded-lg ring-1 ring-white/10"
-            />
+          <div className="min-h-screen px-4 py-8 flex flex-col items-center justify-center">
+            {/* Top close button */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImage(null);
-              }}
-              className="absolute -top-4 -right-4 w-8 h-8 flex items-center justify-center bg-white rounded-full text-gray-600 hover:text-gray-900 shadow-lg transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500"
+              onClick={() => setSelectedImage(null)}
+              className="fixed top-4 right-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full backdrop-blur-sm transition-all duration-200 z-[60]"
+              aria-label="Close modal"
             >
-              ✕
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Updated Image container with reduced size */}
+            <div 
+              className="relative max-w-2xl w-full mx-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <img
+                src={selectedImage}
+                alt="Enlarged view"
+                className="w-full h-auto object-contain rounded-lg shadow-2xl max-h-[60vh]"
+              />
+            </div>
+
+            {/* Bottom close button */}
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="mt-4 px-6 py-2 text-white/90 hover:text-white bg-black/30 hover:bg-black/50 rounded-full backdrop-blur-sm transition-all duration-200 text-sm font-medium"
+            >
+              Close
             </button>
           </div>
         </div>
