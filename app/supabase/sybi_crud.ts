@@ -1,5 +1,6 @@
 import supabase from "./supabase_client";
 import type { Review, Brand, User } from "./models";
+import type { PostgrestError } from "@supabase/supabase-js";
 
 const BRAND_TABLE = "brand";
 const REVIEW_TABEL = "review";
@@ -10,37 +11,37 @@ export type CreateReview = Omit<Review, "id" | "created_at">;
 export type CreateUser = Omit<User, "id" | "created_at">;
 export type CreateBrand = Omit<Brand, "id" | "created_at">;
 
-export const createReview = async (review: CreateReview) => {
-  const { data, error } = await supabase.from(REVIEW_TABEL).insert(review);
-  if (error){
-    console.error("Something went wrong ", error)
-    return error
+export const createReview = async (review: CreateReview): Promise<Review[] | PostgrestError> => {
+  const { data, error } = await supabase.from(REVIEW_TABEL).insert(review).select();
+  if (error) {
+    console.error("Something went wrong creating review ", error);
+    return error;
   }
 
-  console.log("Created review successfully with data ", review)
-  return null
+  console.log("Created review successfully with data ", data);
+  return data;
 };
 
 export const createBrand = async (brand: CreateBrand) => {
-  const { data, error } = await supabase.from(BRAND_TABLE).insert(brand);
-  if (error){
-    console.error("Something went wrong ", error)
-    return error
+  const { data, error } = await supabase.from(BRAND_TABLE).upsert(brand).select();
+  if (error) {
+    console.error("Something went wrong creating a brand ", error);
+    return error;
   }
 
-  console.log("Created brand successfully with data ", brand)
-  return null
+  console.log("Upserted brand successfully with data ", data);
+  return data;
 };
 
 export const createUser = async (user: CreateUser) => {
-  const { data, error } = await supabase.from(USER_TABLE).insert(user);
-  if (error){
-    console.error("Something went wrong ", error)
-    return error
+  const { data, error } = await supabase.from(USER_TABLE).upsert(user).select();
+  if (error) {
+    console.error("Something went wrong creating a user ", error);
+    return error;
   }
 
-  console.log("Created user successfully with data ", user)
-  return null;
+  console.log("Upserted user successfully with data ", data);
+  return data;
 };
 
 export const getReviews = async (
@@ -48,7 +49,7 @@ export const getReviews = async (
 ): Promise<Review[]> => {
   console.log("filtering reviews with respect to brand - ", brand);
 
-  let query = supabase.from(REVIEW_TABEL).select("*");
+  let query = supabase.from(REVIEW_TABEL).select("*").order("created_at", {ascending:false});
 
   if (brand) {
     query = query

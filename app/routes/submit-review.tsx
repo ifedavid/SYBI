@@ -3,6 +3,7 @@ import Select from "react-select";
 import type { Brand, Review, User } from "app/supabase/models";
 import type { Route } from "./+types/submit-review";
 import {
+  createBrand,
   createReview,
   createUser,
   getBrands,
@@ -13,6 +14,7 @@ import type {
   CreateReview,
   CreateUser,
 } from "app/supabase/sybi_crud";
+import { getInstagramUrl } from "../utils/instagram";
 
 class BusinessType {
   static NEW = "new";
@@ -94,60 +96,69 @@ export default function SubmitReview() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
 
-    let imageUrls: string[] = [];
-    if (formData.images.length > 0) {
-      try {
+    try {
+      // Upload images first
+      let imageUrls: string[] = [];
+      if (formData.images.length > 0) {
         imageUrls = await uploadImages(formData.images);
-      } catch (error) {
-        console.error("Error uploading images:", error);
-        // Handle error appropriately
       }
-    }
 
-    let brand: CreateBrand = {
-      category: currentBrand?.category || "",
-      name: currentBrand?.name || " ",
-      url: currentBrand?.url || "",
-      insta_url: currentBrand?.insta_url || "",
-    };
-
-    const ANONYMOUS = "Anonymous";
-    let user: CreateUser = {
-      name: ANONYMOUS,
-      email: ANONYMOUS,
-    };
-
-    if (!formData.isAnonymous) {
-      user = {
-        name: formData.reviewerName,
-        email: formData.email,
+      // Handle user creation
+      const ANONYMOUS = "Anonymous";
+      let user: CreateUser = {
+        name: ANONYMOUS,
+        email: ANONYMOUS,
       };
-      createUser(user);
-    }
 
-    if (formData.businessType == BusinessType.NEW) {
-      brand = {
-        category: formData.category,
-        name: formData.brandName,
-        url: formData.websiteUrl,
-        insta_url: formData.instagramHandle,
+      if (!formData.isAnonymous) {
+        user = {
+          name: formData.reviewerName,
+          email: formData.email,
+        };
+        await createUser(user);
+      }
+
+      // Handle brand creation
+      let brand: CreateBrand = {
+        category: currentBrand?.category || "",
+        name: currentBrand?.name || " ",
+        url: currentBrand?.url || "",
+        insta_url: currentBrand?.insta_url || "",
       };
-    }
 
-    const review: CreateReview = {
-      title: formData.title,
-      description: formData.review,
-      rating: formData.rating,
-      recommended: formData.recommendation === Recommendation.YES,
-      brand_name: brand.name,
-      brand_url: brand.url,
-      user_name: user.name,
-      user_email: user.email,
-      images: imageUrls,
-    };
-    createReview(review);
+      if (formData.businessType === BusinessType.NEW) {
+        brand = {
+          category: formData.category,
+          name: formData.brandName,
+          url: formData.websiteUrl,
+          insta_url: getInstagramUrl(formData.instagramHandle),
+        };
+        // Wait for brand creation to complete
+        await createBrand(brand);
+        // Add a small delay to ensure database consistency
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      // Create review after user and brand are created
+      const review: CreateReview = {
+        title: formData.title,
+        description: formData.review,
+        rating: formData.rating,
+        recommended: formData.recommendation === Recommendation.YES,
+        brand_name: brand.name,
+        brand_url: brand.url,
+        user_name: user.name,
+        user_email: user.email,
+        images: imageUrls,
+      };
+
+      const newReview = await createReview(review);
+
+    } catch (error) {
+      console.error("Error in submission:", error);
+      // You might want to show an error notification here
+    }
   };
 
   const handleChange = (
@@ -177,7 +188,8 @@ export default function SubmitReview() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto relative">
+
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
           Submit a Review
@@ -228,7 +240,7 @@ export default function SubmitReview() {
                 htmlFor="businessName"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Select Business *
+                Select Business <span className="text-red-500">*</span>
               </label>
               <Select
                 id="businessName"
@@ -243,35 +255,36 @@ export default function SubmitReview() {
                 placeholder="Search for a business..."
                 isClearable
                 isSearchable
+                required
               />
             </div>
           ) : (
             <>
-              <div>
+                <div>
                 <label
-                  htmlFor="businessName"
+                  htmlFor="brandName"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Business Name *
+                  Business Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="businessName"
-                  name="businessName"
+                  id="brandName"
+                  name="brandName"
                   required
                   value={formData.brandName}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
                   placeholder="Enter business name"
                 />
-              </div>
+                </div>
 
               <div>
                 <label
                   htmlFor="category"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Business Category *
+                  Business Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="category"
@@ -295,7 +308,7 @@ export default function SubmitReview() {
                   htmlFor="instagramHandle"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Instagram Handle
+                  Instagram Handle <span className="text-red-500">*</span>
                 </label>
                 <div className="flex">
                   <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
@@ -305,6 +318,7 @@ export default function SubmitReview() {
                     type="text"
                     id="instagramHandle"
                     name="instagramHandle"
+                    required
                     value={formData.instagramHandle}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
@@ -318,12 +332,13 @@ export default function SubmitReview() {
                   htmlFor="websiteUrl"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Website URL
+                  Website URL <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="url"
                   id="websiteUrl"
                   name="websiteUrl"
+                  required
                   value={formData.websiteUrl}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
@@ -369,7 +384,7 @@ export default function SubmitReview() {
               htmlFor="title"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Review Title *
+              Review Title <span className="text-red-500">*</span>
             </label>
             <select
               id="title"
@@ -393,7 +408,7 @@ export default function SubmitReview() {
               htmlFor="review"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Your Review *
+              Your Review <span className="text-red-500">*</span>
             </label>
             <textarea
               id="review"
@@ -441,7 +456,7 @@ export default function SubmitReview() {
         {/* Image Upload Section */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Upload Images (Images or it didn't happen)
+            Upload Images (pictures or it didn't happen)<span className="text-red-500">*</span>
           </label>
           <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
             <div className="space-y-1 text-center">
@@ -471,6 +486,7 @@ export default function SubmitReview() {
                     type="file"
                     className="sr-only"
                     multiple
+                    required
                     accept="image/*"
                     onChange={handleImageChange}
                   />
@@ -547,12 +563,13 @@ export default function SubmitReview() {
                   htmlFor="reviewerName"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Your Name
+                  Your Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   id="reviewerName"
                   name="reviewerName"
+                  required
                   value={formData.reviewerName}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
@@ -565,12 +582,13 @@ export default function SubmitReview() {
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Email Address
+                  Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   id="email"
                   name="email"
+                  required
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
