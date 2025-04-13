@@ -21,6 +21,15 @@ export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    scrollToTop();
+  };
+
   useEffect(() => {
     fetchReviews(currentBrand);
   }, [currentBrand]);
@@ -123,8 +132,8 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-gray-600 hover:text-lime-600 transition-colors"
                 >
-                  <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9-3-9m-9 9a9 9 0 019-9" />
                   </svg>
                   <span className="hidden sm:inline">Website</span>
                 </a>
@@ -172,7 +181,7 @@ export default function Home() {
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-8">
           <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
             className={`px-3 py-1 rounded-lg ${
               currentPage === 1
@@ -187,7 +196,7 @@ export default function Home() {
             <span className="text-sm text-gray-600">Page</span>
             <select
               value={currentPage}
-              onChange={(e) => setCurrentPage(Number(e.target.value))}
+              onChange={(e) => handlePageChange(Number(e.target.value))}
               className="border border-gray-300 rounded px-2 py-1 text-sm"
             >
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -200,7 +209,7 @@ export default function Home() {
           </div>
           
           <button
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
             className={`px-3 py-1 rounded-lg ${
               currentPage === totalPages

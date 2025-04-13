@@ -161,12 +161,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className="bg-lime-500 hover:bg-lime-600 text-white px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors shadow-sm hover:shadow flex items-center"
             >
               <svg
-                xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 mr-1"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
               </svg>
               Submit a Review
             </Link>
