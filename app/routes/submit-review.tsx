@@ -178,6 +178,10 @@ export default function SubmitReview() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    if (files.length > 6) {
+      alert('You can only upload up to 6 images');
+      return;
+    }
     setFormData((prev) => ({ ...prev, images: files }));
 
     // Create previews
@@ -462,7 +466,7 @@ export default function SubmitReview() {
         {/* Image Upload Section */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Upload Images (pictures or it didn't happen)<span className="text-red-500">*</span>
+            Upload Images (Maximum 6) <span className="text-red-500">*</span>
           </label>
           <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
             <div className="space-y-1 text-center">
@@ -499,7 +503,9 @@ export default function SubmitReview() {
                 </label>
                 <p className="pl-1">or drag and drop</p>
               </div>
-              <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+              <p className="text-xs text-gray-500">
+                PNG, JPG, GIF up to 10MB (max 6 images)
+              </p>
             </div>
           </div>
         </div>
