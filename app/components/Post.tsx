@@ -21,70 +21,86 @@ export default function Post({
   return (
     <>
       <article
-        className={`bg-white rounded-xl shadow-lg transition-all duration-300 border ${
-          isHighlighted
-            ? "border-lime-500 shadow-lime-100"
-            : "border-gray-100"
-        } p-6 hover:shadow-xl`}
+        className={`bg-white rounded-xl shadow-sm border ${
+          isHighlighted ? "border-lime-500" : "border-gray-200"
+        } overflow-hidden transition-all duration-300 hover:shadow-md`}
       >
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-gray-900">{user_name}</span>
-            {/* {recommended && (
-              <span className="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-full">
-                Verified reviewer
-              </span>
-            )} */}
+        {/* Header Section */}
+        <div className="p-6 pb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <span className="text-gray-600 font-medium">
+                  {user_name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900">{user_name}</h3>
+                <p className="text-sm text-gray-500 flex items-center gap-2">
+                  <span>{brand_name}</span>
+                  <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                  <span className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < rating ? "text-yellow-400" : "text-gray-300"
+                        }`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </span>
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-1">
-            {[...Array(5)].map((_, i) => (
-              <span
-                key={i}
-                className={i < rating ? "text-yellow-500" : "text-gray-300"}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-        </div>
-        <p className="text-gray-800 mb-4 leading-relaxed">{title}</p>
-        <div className="flex items-center justify-between text-sm text-gray-700 mb-4">
-          <span className="italic">"{description}"</span>
-          <span className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-            {brand_name}
-          </span>
+
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">{title}</h4>
+          <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
         </div>
 
+        {/* Images Section - More Compact */}
         {images && images.length > 0 && (
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            {images.map((image, index) => (
-              <div
-                key={index}
-                className="aspect-square relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                onClick={() => setSelectedImage(image)}
-              >
-                <img
-                  src={image}
-                  alt={`Review image ${index + 1}`}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            ))}
+          <div className="border-t border-gray-100">
+            <div
+              className={`grid ${
+                images.length === 1 ? "grid-cols-1" : "grid-cols-2"
+              } gap-px bg-gray-100`}
+            >
+              {images.map((image, index) => (
+                <div
+                  key={index}
+                  className="relative cursor-zoom-in h-48"
+                  onClick={() => setSelectedImage(image)}
+                >
+                  <img
+                    src={image}
+                    alt={`Review image ${index + 1}`}
+                    className="object-cover w-full h-full hover:opacity-90 transition-opacity"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        <div className="border-t border-gray-100 pt-4 mt-4">
-          <div className="flex items-center justify-between">
-            <span className="text-gray-800 font-medium">
+        {/* Footer - Should You Buy It Section */}
+        <div className="border-t border-gray-100 px-6 py-4 bg-gray-50 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">
               Should you buy it?
             </span>
             <span
-              className={`font-semibold ${
-                recommended ? "text-lime-600" : "text-red-500"
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                recommended
+                  ? "bg-lime-100 text-lime-800 border border-lime-200"
+                  : "bg-red-100 text-red-800 border border-red-200"
               }`}
             >
-              {recommended ? "Yes" : "No"}
+              {recommended ? "Yes!" : "No"}
             </span>
           </div>
         </div>
@@ -93,26 +109,24 @@ export default function Post({
       {/* Image Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto"
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative min-h-screen flex items-center justify-center py-8">
-            <div className="relative max-w-4xl w-full">
-              <img
-                src={selectedImage}
-                alt="Enlarged view"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
-              />
-              <button
-                className="absolute -top-2 -right-2 w-8 h-8 flex items-center justify-center bg-white rounded-full text-gray-800 hover:bg-gray-100 transition-colors shadow-lg"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedImage(null);
-                }}
-              >
-                ×
-              </button>
-            </div>
+          <div className="relative max-w-5xl w-full mx-auto">
+            <img
+              src={selectedImage}
+              alt="Enlarged view"
+              className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
+            />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage(null);
+              }}
+              className="absolute -top-4 -right-4 w-8 h-8 flex items-center justify-center bg-white rounded-full text-gray-600 hover:text-gray-900 shadow-lg transition-colors"
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}

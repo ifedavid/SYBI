@@ -15,6 +15,7 @@ import type {
   CreateUser,
 } from "app/supabase/sybi_crud";
 import { getInstagramUrl } from "../utils/instagram";
+import { useNavigate } from "react-router-dom";
 
 class BusinessType {
   static NEW = "new";
@@ -37,6 +38,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function SubmitReview() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     businessType: BusinessType.EXISTING, // "existing" or "new"
     brandName: "",
@@ -154,6 +156,10 @@ export default function SubmitReview() {
       };
 
       const newReview = await createReview(review);
+      if (Array.isArray(newReview) && newReview.length > 0) {
+        // Redirect to home page with the new review ID
+        navigate('/', { state: { newReviewId: newReview[0].id } });
+      }
 
     } catch (error) {
       console.error("Error in submission:", error);
