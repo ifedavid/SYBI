@@ -132,16 +132,17 @@ export default function SubmitReview() {
       };
 
       if (formData.businessType === BusinessType.NEW) {
+        const instaUrl = getInstagramUrl(formData.instagramHandle);
         brand = {
           category: formData.category,
           name: formData.brandName,
-          url: formData.websiteUrl,
-          insta_url: getInstagramUrl(formData.instagramHandle),
+          url: formData.websiteUrl || instaUrl, // Use Instagram URL if website URL is not provided
+          insta_url: instaUrl,
         };
         // Wait for brand creation to complete
         await createBrand(brand);
         // Add a small delay to ensure database consistency
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
 
       // Create review after user and brand are created
@@ -160,9 +161,8 @@ export default function SubmitReview() {
       const newReview = await createReview(review);
       if (Array.isArray(newReview) && newReview.length > 0) {
         // Redirect to home page with the new review ID
-        navigate('/', { state: { newReviewId: newReview[0].id } });
+        navigate("/", { state: { newReviewId: newReview[0].id } });
       }
-
     } catch (error) {
       console.error("Error in submission:", error);
       // You might want to show an error notification here
@@ -183,7 +183,7 @@ export default function SubmitReview() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 6) {
-      alert('You can only upload up to 6 images');
+      alert("You can only upload up to 6 images");
       return;
     }
     setFormData((prev) => ({ ...prev, images: files }));
@@ -203,7 +203,6 @@ export default function SubmitReview() {
 
   return (
     <div className="max-w-2xl mx-auto relative">
-
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
           Submit a Review
@@ -274,7 +273,7 @@ export default function SubmitReview() {
             </div>
           ) : (
             <>
-                <div>
+              <div>
                 <label
                   htmlFor="brandName"
                   className="block text-sm font-medium text-gray-700 mb-1"
@@ -291,7 +290,7 @@ export default function SubmitReview() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
                   placeholder="Enter business name"
                 />
-                </div>
+              </div>
 
               <div>
                 <label
@@ -346,13 +345,12 @@ export default function SubmitReview() {
                   htmlFor="websiteUrl"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Website URL <span className="text-red-500">*</span>
+                  Website URL
                 </label>
                 <input
                   type="url"
                   id="websiteUrl"
                   name="websiteUrl"
-                  required
                   value={formData.websiteUrl}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500"
@@ -619,7 +617,7 @@ export default function SubmitReview() {
           type="submit"
           disabled={isSubmitting}
           className={`w-full py-2 px-4 rounded-lg font-medium shadow-sm hover:shadow flex items-center justify-center gap-2 transition-colors ${
-            isSubmitting 
+            isSubmitting
               ? "bg-lime-400 cursor-not-allowed"
               : "bg-lime-500 hover:bg-lime-600"
           } text-white`}
@@ -627,17 +625,17 @@ export default function SubmitReview() {
           {isSubmitting ? (
             <>
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle 
-                  className="opacity-25" 
-                  cx="12" 
-                  cy="12" 
-                  r="10" 
-                  stroke="currentColor" 
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
                   strokeWidth="4"
                   fill="none"
                 />
-                <path 
-                  className="opacity-75" 
+                <path
+                  className="opacity-75"
                   fill="currentColor"
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />

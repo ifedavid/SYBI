@@ -21,13 +21,13 @@ export default function Post({
   // Add effect to handle body scroll
   useEffect(() => {
     if (selectedImage) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
-    
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [selectedImage]);
 
@@ -48,9 +48,13 @@ export default function Post({
                 </span>
               </div>
               <div>
-                <h3 className="font-medium text-sm sm:text-base text-gray-900">{user_name}</h3>
+                <h3 className="font-medium text-sm sm:text-base text-gray-900">
+                  {user_name}
+                </h3>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs sm:text-sm text-gray-500">{brand_name}</span>
+                  <span className="text-xs sm:text-sm text-gray-500">
+                    {brand_name}
+                  </span>
                   <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
                   <div className="flex items-center -space-x-1">
                     {[...Array(5)].map((_, i) => (
@@ -60,9 +64,10 @@ export default function Post({
                           i < rating ? "text-yellow-400" : "text-gray-200"
                         }`}
                         style={{
-                          filter: i < rating
-                            ? "drop-shadow(0 1px 1px rgba(0,0,0,0.1))"
-                            : "none",
+                          filter:
+                            i < rating
+                              ? "drop-shadow(0 1px 1px rgba(0,0,0,0.1))"
+                              : "none",
                         }}
                         fill="currentColor"
                         viewBox="0 0 20 20"
@@ -79,7 +84,9 @@ export default function Post({
           <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 leading-snug">
             {title}
           </h4>
-          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{description}</p>
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            {description}
+          </p>
         </div>
 
         {/* Updated Images Section with fixed size */}
@@ -128,7 +135,7 @@ export default function Post({
 
       {/* Updated Image Modal */}
       {selectedImage && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 overflow-y-auto overflow-x-hidden"
           onClick={() => setSelectedImage(null)}
         >
@@ -139,15 +146,25 @@ export default function Post({
               className="fixed top-4 right-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full backdrop-blur-sm transition-all duration-200 z-[60]"
               aria-label="Close modal"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
 
             {/* Updated Image container with reduced size */}
-            <div 
+            <div
               className="relative max-w-2xl w-full mx-auto"
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <img
                 src={selectedImage}
