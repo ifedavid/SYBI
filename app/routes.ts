@@ -9,5 +9,6 @@ export default [
   layout("routes/layout.tsx", [
     index("routes/home.tsx"),
     route("submit-review", "routes/submit-review.tsx"),
+    route("terms_and_privacy", "routes/terms_and_privacy.tsx"),
   ]),
 ] satisfies RouteConfig;
