@@ -54,6 +54,7 @@ export default function SubmitReview() {
     email: "",
     isAnonymous: false,
     images: [] as File[],
+    agreedToTerms: false, // Add this new state
   });
 
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -99,6 +100,12 @@ export default function SubmitReview() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.agreedToTerms) {
+      alert("Please agree to our terms and privacy policy to continue");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -613,12 +620,47 @@ export default function SubmitReview() {
           )}
         </div>
 
+        {/* Legal Disclaimer */}
+        <div className="space-y-4 border-t pt-4">
+          <div className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              id="terms"
+              name="agreedToTerms"
+              checked={formData.agreedToTerms}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  agreedToTerms: e.target.checked,
+                }))
+              }
+              className="mt-1 text-lime-500 focus:ring-lime-500"
+              required
+            />
+            <label htmlFor="terms" className="text-sm text-gray-600">
+              I agree that by submitting this review, I have read and accepted
+              the{" "}
+              <a
+                href="/terms_and_privacy"
+                target="_blank"
+                className="text-lime-600 hover:text-lime-700 underline"
+              >
+                Legal Terms of Service & Privacy Policy
+              </a>
+                
+              . I confirm that this review is based on my genuine experience and
+              all information provided is accurate to the best of my knowledge.{" "}
+              <span className="text-red-500">*</span>
+            </label>
+          </div>
+        </div>
+
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !formData.agreedToTerms}
           className={`w-full py-2 px-4 rounded-lg font-medium shadow-sm hover:shadow flex items-center justify-center gap-2 transition-colors ${
-            isSubmitting
-              ? "bg-lime-400 cursor-not-allowed"
+            isSubmitting || !formData.agreedToTerms
+              ? "bg-gray-400 cursor-not-allowed"
               : "bg-lime-500 hover:bg-lime-600"
           } text-white`}
         >
