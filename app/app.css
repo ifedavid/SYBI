@@ -1,1 +1,110 @@
 @import "tailwindcss";
+
+/* Base styles */
+:root {
+  --header-height: 120px;
+}
+
+/* Mobile first approach */
+@media screen and (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .prose {
+    font-size: 0.875rem;
+  }
+
+  .header-title {
+    font-size: 0.875rem;
+  }
+}
+
+/* Tablet and larger */
+@media screen and (min-width: 641px) and (max-width: 1024px) {
+  :root {
+    --header-height: 80px;
+  }
+
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Desktop */
+@media screen and (min-width: 1025px) {
+  :root {
+    --header-height: 80px;
+  }
+
+  .container {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+/* High-resolution screens */
+@media screen and (min-width: 1280px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  /* Add dark mode styles if needed */
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-float {
+    animation: none !important;
+  }
+}
+
+/* Viewport height fixes for mobile browsers */
+@media screen and (max-height: 450px) {
+  .min-h-screen {
+    min-height: 100vh; /* Fallback */
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* High contrast mode */
+@media (forced-colors: active) {
+  .border {
+    border-color: CanvasText;
+  }
+  
+  .text-gray-600 {
+    color: CanvasText;
+  }
+}
+
+/* Landscape orientation specific styles */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .header {
+    position: relative;
+  }
+  
+  .main-content {
+    margin-top: 1rem;
+  }
+}

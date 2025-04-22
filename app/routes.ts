@@ -10,5 +10,6 @@ export default [
     index("routes/home.tsx"),
     route("submit-review", "routes/submit-review.tsx"),
     route("terms_and_privacy", "routes/terms_and_privacy.tsx"),
+    route("*", "routes/not-found.tsx"),
   ]),
 ] satisfies RouteConfig;

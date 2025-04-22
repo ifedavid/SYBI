@@ -9,8 +9,12 @@ const POSTS_PER_PAGE = 5;
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "SYBI Home" },
-    { name: "description", content: "Should you buy it?" },
+    { title: "SYBI - Review Nigerian Brands & Businesses | Should You Buy It?" },
+    { 
+      name: "description", 
+      content: "Read trusted reviews of Nigerian brands, businesses, and services. Share your experience and help others make informed purchasing decisions in Nigeria." 
+    },
+    { name: "keywords", content: "Nigerian business reviews, brand reviews Nigeria, customer reviews, online shopping Nigeria, business ratings" },
   ];
 }
 
@@ -96,7 +100,27 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div 
+      className="max-w-3xl mx-auto space-y-8"
+      itemScope 
+      itemType="https://schema.org/Organization"
+    >
+      <meta itemProp="name" content="Should You Buy It?" />
+      <meta itemProp="description" content="Nigerian business reviews and ratings platform" />
+
+      <div className="text-center mb-12">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+          {currentBrand
+            ? `${currentBrand.name} Reviews & Ratings in Nigeria`
+            : "Trusted Nigerian Brand Reviews & Ratings"}
+        </h1>
+        <p className="text-gray-600">
+          {currentBrand
+            ? `Read authentic customer reviews about ${currentBrand.name}`
+            : "Discover honest reviews of Nigerian businesses and brands"}
+        </p>
+      </div>
+
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8 mt-8">
         <div className="w-full sm:w-[400px] lg:w-[500px]">
           <Select
@@ -189,13 +213,21 @@ export default function Home() {
         )}
       </div>
 
-      <div className="space-y-6 max-w-2xl mx-auto">
+      <div 
+        className="space-y-6 max-w-2xl mx-auto"
+        itemScope 
+        itemType="https://schema.org/ReviewAggregator"
+      >
         {paginatedReviews.map((review: Review) => (
-          <Post
-            key={review.id}
-            {...review}
-            // isHighlighted={review.id === newReviewId}
-          />
+          <div 
+            key={review.id} 
+            itemScope 
+            itemType="https://schema.org/Review"
+          >
+            <meta itemProp="author" content={review.user_name} />
+            <meta itemProp="reviewRating" content={review.rating.toString()} />
+            <Post {...review} />
+          </div>
         ))}
       </div>
 

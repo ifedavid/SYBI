@@ -37,56 +37,80 @@ export default function Post({
         className={`bg-white rounded-xl shadow-sm border ${
           isHighlighted ? "border-lime-500" : "border-gray-200"
         } overflow-hidden transition-all duration-300 hover:shadow-md`}
+        itemScope
+        itemType="https://schema.org/Review"
       >
         {/* Header Section - Updated text sizes */}
         <div className="p-4 sm:p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-gray-100 to-gray-50 rounded-full flex items-center justify-center shadow-sm">
-                <span className="text-gray-600 font-semibold text-base sm:text-lg">
-                  {user_name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <h3 className="font-medium text-sm sm:text-base text-gray-900">
-                  {user_name}
-                </h3>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs sm:text-sm text-gray-500">
-                    {brand_name}
+          <div itemProp="author" itemScope itemType="https://schema.org/Person">
+            <meta itemProp="name" content={user_name} />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-gray-100 to-gray-50 rounded-full flex items-center justify-center shadow-sm">
+                  <span className="text-gray-600 font-semibold text-base sm:text-lg">
+                    {user_name.charAt(0).toUpperCase()}
                   </span>
-                  <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                  <div className="flex items-center -space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < rating ? "text-yellow-400" : "text-gray-200"
-                        }`}
-                        style={{
-                          filter:
-                            i < rating
-                              ? "drop-shadow(0 1px 1px rgba(0,0,0,0.1))"
-                              : "none",
-                        }}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm sm:text-base text-gray-900">
+                    {user_name}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs sm:text-sm text-gray-500">
+                      {brand_name}
+                    </span>
+                    <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                    <div className="flex items-center -space-x-1">
+                      {[...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < rating ? "text-yellow-400" : "text-gray-200"
+                          }`}
+                          style={{
+                            filter:
+                              i < rating
+                                ? "drop-shadow(0 1px 1px rgba(0,0,0,0.1))"
+                                : "none",
+                          }}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 leading-snug">
+          <div
+            itemProp="itemReviewed"
+            itemScope
+            itemType="https://schema.org/Organization"
+          >
+            <meta itemProp="name" content={brand_name} />
+          </div>
+
+          <h4
+            itemProp="name"
+            className="text-base sm:text-lg font-semibold text-gray-900 mb-2 leading-snug"
+          >
             {title}
           </h4>
-          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+          <p
+            itemProp="reviewBody"
+            className="text-xs sm:text-sm text-gray-600 leading-relaxed"
+          >
             {description}
           </p>
+
+          <div itemProp="reviewRating" itemScope itemType="https://schema.org/Rating">
+            <meta itemProp="ratingValue" content={rating.toString()} />
+            <meta itemProp="bestRating" content="5" />
+          </div>
         </div>
 
         {/* Updated Images Section with fixed size */}
@@ -116,6 +140,10 @@ export default function Post({
 
         {/* Footer - Updated text sizes */}
         <div className="border-t border-gray-100 px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-br from-gray-50 to-white flex items-center justify-between">
+          <meta
+            itemProp="recommendationStatus"
+            content={recommended ? "PositiveNotes" : "NegativeNotes"}
+          />
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="text-xs sm:text-sm font-medium text-gray-700">
               Should you buy it?

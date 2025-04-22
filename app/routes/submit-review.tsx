@@ -29,10 +29,16 @@ class Recommendation {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Submit a Review - SYBI" },
+    { title: "Submit a Business Review in Nigeria | SYBI" },
     {
       name: "description",
-      content: "Share your experience and help others make informed decisions",
+      content:
+        "Share your experience with Nigerian brands and businesses. Help others make informed decisions with your honest review and ratings.",
+    },
+    {
+      name: "keywords",
+      content:
+        "submit review, rate business Nigeria, customer feedback, Nigerian brands review",
     },
   ];
 }
@@ -90,7 +96,7 @@ export default function SubmitReview() {
   // Add this handler for react-select
   const handleBrandsSelect = (selectedOption: any) => {
     setCurrentBrand(
-      brands.find((brand) => brand.name === selectedOption?.value),
+      brands.find((brand) => brand.name === selectedOption?.value)
     );
     setFormData((prev) => ({
       ...prev,
@@ -181,7 +187,7 @@ export default function SubmitReview() {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -209,20 +215,29 @@ export default function SubmitReview() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto relative">
+    <div 
+      className="max-w-2xl mx-auto relative"
+      itemScope 
+      itemType="https://schema.org/ReviewAction"
+    >
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Submit a Review
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          Review a Nigerian Business
         </h1>
         <p className="text-gray-600">
-          Share your experience to help others make informed decisions
+          Share your experience to help others make informed decisions about
+          Nigerian brands
         </p>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
+      <form 
+        onSubmit={handleSubmit} 
         className="bg-white rounded-xl shadow-lg p-6 space-y-6"
+        itemProp="potentialAction"
+        itemScope 
+        itemType="https://schema.org/ReviewAction"
       >
+        <meta itemProp="target" content="https://shouldyoubuyit.ng/submit-review" />
         {/* Business Type Selection */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -266,7 +281,7 @@ export default function SubmitReview() {
                 id="businessName"
                 name="businessName"
                 value={businessOptions.find(
-                  (option) => option.value === formData.brandName,
+                  (option) => option.value === formData.brandName
                 )}
                 onChange={handleBrandsSelect}
                 options={businessOptions}
@@ -647,7 +662,6 @@ export default function SubmitReview() {
               >
                 Legal Terms of Service & Privacy Policy
               </a>
-                
               . I confirm that this review is based on my genuine experience and
               all information provided is accurate to the best of my knowledge.{" "}
               <span className="text-red-500">*</span>

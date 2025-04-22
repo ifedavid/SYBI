@@ -2,11 +2,12 @@ import type { Route } from "./+types/terms_and_privacy";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Terms & Privacy - SYBI" },
+    { title: "Terms & Privacy Policy for Nigerian Business Reviews | SYBI" },
     {
       name: "description",
-      content: "Legal terms of service and privacy policy for Should You Buy It?",
+      content: "Legal terms and privacy policy for Should You Buy It? - Nigeria's trusted platform for honest business reviews and ratings.",
     },
+    { name: "keywords", content: "review policy, Nigerian business reviews terms, privacy policy, legal terms" },
   ];
 }
 
