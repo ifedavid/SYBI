@@ -5,7 +5,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 const VITE_DB_TIER = import.meta.env.VITE_DB_TIER;
 const VITE_S3_TIER = import.meta.env.VITE_S3_TIER;
 const BRAND_TABLE = "brand" + VITE_DB_TIER;
-const REVIEW_TABEL = "review" + VITE_DB_TIER;
+const REVIEW_TABLE = "review" + VITE_DB_TIER;
 const USER_TABLE = "user" + VITE_DB_TIER;
 const STORAGE_BUCKET = "sybi-images" + VITE_S3_TIER;
 
@@ -17,7 +17,7 @@ export const createReview = async (
   review: CreateReview,
 ): Promise<Review[] | PostgrestError> => {
   const { data, error } = await supabase
-    .from(REVIEW_TABEL)
+    .from(REVIEW_TABLE)
     .insert(review)
     .select();
   if (error) {
@@ -60,7 +60,7 @@ export const getReviews = async (
   console.log("filtering reviews with respect to brand - ", brand);
 
   let query = supabase
-    .from(REVIEW_TABEL)
+    .from(REVIEW_TABLE)
     .select("*")
     .order("created_at", { ascending: false });
 
